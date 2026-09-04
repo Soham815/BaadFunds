@@ -1,0 +1,32 @@
+.plans-intro {
+	background: linear-gradient(135deg, var(--yellow) 0%, var(--white) 65%);
+}
+
+.plan-card {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.plan-icon {
+	font-size: 34px;
+	background: var(--mint);
+	width: 60px;
+	height: 60px;
+	border-radius: var(--radius-blob-alt);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 12px;
+}
+
+.plan-facts {
+	list-style: none;
+	padding: 0;
+	margin: 6px 0 18px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-size: 14px;
+	color: var(--plum-soft);
+}

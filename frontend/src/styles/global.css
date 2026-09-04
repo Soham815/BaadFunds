@@ -1,0 +1,203 @@
+:root {
+	/* ---- BaadFunds palette: a candy-garden piggy bank ---- */
+	--cream: #fff8f0;
+	--pink: #ffc2de;
+	--pink-deep: #ff8fbf;
+	--coral: #ff7a9e;
+	--lavender: #e7dbff;
+	--mint: #bdf3d4;
+	--mint-deep: #7fe0a8;
+	--yellow: #ffe08a;
+	--plum: #4a2e5c;
+	--plum-soft: #7a5d8f;
+	--white: #ffffff;
+	--shadow: 0 10px 0 rgba(74, 46, 92, 0.08);
+	--shadow-lift: 0 16px 30px rgba(255, 122, 158, 0.22);
+
+	--radius-blob: 32px 16px 32px 16px;
+	--radius-blob-alt: 16px 32px 16px 32px;
+	--radius-pill: 999px;
+
+	--font-display: "Fredoka", ui-rounded, "Nunito", sans-serif;
+	--font-body: "Nunito", ui-rounded, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	background: var(--cream);
+	background-image: radial-gradient(circle at 8% 12%, rgba(255, 194, 222, 0.35), transparent 40%),
+		radial-gradient(circle at 92% 18%, rgba(189, 243, 212, 0.4), transparent 42%),
+		radial-gradient(circle at 50% 95%, rgba(231, 219, 255, 0.4), transparent 45%);
+	color: var(--plum);
+	font-family: var(--font-body);
+	-webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	font-family: var(--font-display);
+	font-weight: 600;
+	margin: 0 0 8px;
+	letter-spacing: 0.2px;
+}
+
+p {
+	margin: 0 0 12px;
+	line-height: 1.6;
+	color: var(--plum-soft);
+}
+
+a {
+	color: inherit;
+}
+
+button {
+	font-family: var(--font-body);
+	cursor: pointer;
+}
+
+img {
+	max-width: 100%;
+	display: block;
+}
+
+::selection {
+	background: var(--pink);
+	color: var(--plum);
+}
+
+:focus-visible {
+	outline: 3px solid var(--coral);
+	outline-offset: 3px;
+	border-radius: 8px;
+}
+
+.app-shell {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.page {
+	flex: 1;
+	max-width: 1080px;
+	width: 100%;
+	margin: 0 auto;
+	padding: 28px 20px 80px;
+}
+
+.btn {
+	border: none;
+	border-radius: var(--radius-pill);
+	padding: 14px 26px;
+	font-family: var(--font-display);
+	font-size: 16px;
+	font-weight: 500;
+	color: var(--white);
+	background: var(--coral);
+	box-shadow: var(--shadow);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-lift);
+}
+.btn:active {
+	transform: translateY(1px);
+}
+.btn.btn-secondary {
+	background: var(--lavender);
+	color: var(--plum);
+}
+.btn.btn-mint {
+	background: var(--mint-deep);
+	color: var(--plum);
+}
+.btn.btn-ghost {
+	background: transparent;
+	color: var(--coral);
+	box-shadow: none;
+	padding: 10px 16px;
+}
+.btn.btn-danger {
+	background: #ff5c7a;
+}
+.btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.card {
+	background: var(--white);
+	border-radius: var(--radius-blob);
+	padding: 24px;
+	box-shadow: var(--shadow);
+	border: 2px solid rgba(255, 143, 191, 0.15);
+}
+
+.pill-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--yellow);
+	color: var(--plum);
+	font-family: var(--font-display);
+	font-size: 13px;
+	padding: 6px 14px;
+	border-radius: var(--radius-pill);
+}
+
+.grid {
+	display: grid;
+	gap: 20px;
+}
+.grid.cols-2 {
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.grid.cols-3 {
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+input,
+select,
+textarea {
+	font-family: var(--font-body);
+	font-size: 15px;
+	padding: 12px 14px;
+	border-radius: 16px;
+	border: 2px solid var(--lavender);
+	background: var(--cream);
+	color: var(--plum);
+	width: 100%;
+}
+input:focus,
+select:focus,
+textarea:focus {
+	border-color: var(--coral);
+}
+label {
+	font-family: var(--font-display);
+	font-size: 14px;
+	color: var(--plum-soft);
+	display: block;
+	margin-bottom: 6px;
+}
+
+.field {
+	margin-bottom: 16px;
+}
+
+.empty-state {
+	text-align: center;
+	padding: 40px 20px;
+	color: var(--plum-soft);
+}
