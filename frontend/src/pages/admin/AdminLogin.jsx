@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { api } from "../../api.js";
-import "./Admin.css";
+import "../../styles/Admin.css";
 
 export default function AdminLogin() {
 	const [password, setPassword] = useState("");

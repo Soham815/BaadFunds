@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import "./Admin.css";
+import "../../styles/Admin.css";
 import AdminPlans from "./AdminPlans.jsx";
 import AdminApprovals from "./AdminApprovals.jsx";
 import AdminWithdrawals from "./AdminWithdrawals.jsx";
 import AdminLoans from "./AdminLoans.jsx";
 import AdminCoupons from "./AdminCoupons.jsx";
+import AdminDueReminderPopup from "../../components/AdminDueReminderPopup.jsx";
 
 const TABS = [
 	{ id: "approvals", label: "💰 Payments", Component: AdminApprovals },
@@ -25,6 +26,8 @@ export default function AdminDashboard() {
 
 	return (
 		<div className="admin-shell">
+			<AdminDueReminderPopup />
+
 			<div className="admin-header">
 				<h1>🧑‍💻 Soham's Control Room</h1>
 				<button className="admin-logout" onClick={logout}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
-import "./Payment.css";
+import "../styles/Payment.css";
 
 const UPI_ID = "9359118747@ptsbi";
 const MERCHANT_NAME = "Soham Wani";

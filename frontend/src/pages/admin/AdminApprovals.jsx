@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../api.js";
+import { baadWhatsAppLink, penaltyReminderMessage } from "../../utils/whatsapp.js";
 
 export default function AdminApprovals() {
 	const [pending, setPending] = useState([]);
@@ -40,6 +41,26 @@ export default function AdminApprovals() {
 	async function markPenaltyPaid(id, paid) {
 		await api.setPenaltyPaid(id, paid);
 		load();
+	}
+
+	function remindPenalty(p) {
+		window.open(baadWhatsAppLink(penaltyReminderMessage(p)), "_blank");
+	}
+
+	const [backfilling, setBackfilling] = useState(false);
+	async function backfillExpenses() {
+		setBackfilling(true);
+		try {
+			const { backfilled } = await api.backfillInvestmentExpenses();
+			alert(
+				backfilled > 0
+					? `Added ${backfilled} past investment payment(s) to the expense tracker!`
+					: "Nothing to backfill — the expense tracker is already up to date."
+			);
+		} catch (e) {
+			alert(e.message);
+		}
+		setBackfilling(false);
 	}
 
 	return (
@@ -95,12 +116,31 @@ export default function AdminApprovals() {
 								{p.penalty_units} {p.penalty_item} owed — {p.investments?.plan_name_snapshot} (payment due{" "}
 								{new Date(p.due_date).toLocaleDateString()})
 							</div>
-							<button className="btn btn-secondary" onClick={() => markPenaltyPaid(p.id, true)}>
-								Mark as paid
-							</button>
+							<div className="admin-row-actions">
+								<button className="btn btn-mint" onClick={() => remindPenalty(p)}>
+									💌 Remind on WhatsApp
+								</button>
+								<button className="btn btn-secondary" onClick={() => markPenaltyPaid(p.id, true)}>
+									Mark as paid
+								</button>
+							</div>
 						</div>
 					))}
 				</div>
+			</div>
+
+			<div className="card" style={{ marginTop: 20 }}>
+				<div className="admin-section-title">
+					<h2>💸 Expense tracker sync</h2>
+				</div>
+				<p>
+					Approved investment payments are logged into Baad's expense tracker automatically
+					going forward. If you're setting this up on an older account, run this once to
+					backfill everything approved before this feature existed.
+				</p>
+				<button className="btn btn-secondary" disabled={backfilling} onClick={backfillExpenses}>
+					{backfilling ? "Backfilling…" : "🔄 Backfill past investment payments"}
+				</button>
 			</div>
 		</div>
 	);

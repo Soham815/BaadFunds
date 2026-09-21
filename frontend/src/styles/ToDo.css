@@ -1,0 +1,147 @@
+.todo-page {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.todo-intro {
+	background: linear-gradient(135deg, var(--mint), var(--white) 70%);
+}
+
+.todo-form-card textarea {
+	resize: vertical;
+}
+
+.todo-motivation {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	background: var(--yellow);
+	animation: todo-msg-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+	font-family: var(--font-display);
+	font-size: 15px;
+}
+
+@keyframes todo-msg-in {
+	from {
+		transform: translateY(-8px) scale(0.97);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+}
+
+.todo-msg-close {
+	border: none;
+	background: rgba(255, 255, 255, 0.6);
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.todo-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.todo-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	padding: 18px 20px;
+	transition: opacity 0.4s ease, background 0.4s ease;
+}
+
+.todo-item-done {
+	opacity: 0.55;
+	background: var(--cream);
+}
+
+.todo-item-animating {
+	box-shadow: var(--shadow-lift);
+	border-color: var(--pink-deep);
+}
+
+/* ---------- task text ---------- */
+
+.todo-text-wrap {
+	flex: 1;
+	min-width: 0;
+}
+
+.todo-title {
+	margin: 0 0 4px;
+	font-size: 17px;
+}
+
+.todo-desc {
+	font-size: 13px;
+	margin: 0;
+}
+
+.todo-delete {
+	border: none;
+	background: transparent;
+	font-size: 15px;
+	opacity: 0.5;
+	flex-shrink: 0;
+}
+.todo-delete:hover {
+	opacity: 1;
+}
+
+/* ---------- congrats modal ---------- */
+
+.todo-congrats-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(74, 46, 92, 0.45);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 150;
+	animation: todo-fade-in 0.3s ease;
+}
+
+@keyframes todo-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.todo-congrats-modal {
+	background: var(--white);
+	border-radius: 32px 12px 32px 12px;
+	padding: 28px;
+	max-width: 380px;
+	width: 90%;
+	text-align: center;
+	box-shadow: var(--shadow-lift);
+	animation: todo-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes todo-pop {
+	from {
+		transform: scale(0.7);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.todo-eyebrow {
+	font-family: var(--font-display);
+	color: var(--coral);
+	margin-bottom: 10px;
+}

@@ -9,7 +9,15 @@ function adminHeaders() {
 }
 
 async function handle(res) {
-	const data = await res.json().catch(() => ({}));
+	const contentType = res.headers.get("content-type") || "";
+	if (!contentType.includes("application/json")) {
+		// Almost always means VITE_API_URL is missing/wrong and the request
+		// hit Netlify's own domain (which returns index.html, not JSON).
+		throw new Error(
+			"Got a non-JSON response from the API. Check that VITE_API_URL is set correctly in your deploy settings and points at your Render backend."
+		);
+	}
+	const data = await res.json();
 	if (!res.ok) throw new Error(data.error || "Something went wrong");
 	return data;
 }
@@ -61,6 +69,8 @@ export const api = {
 		fetch(`${BASE}/payments/pending`, { headers: adminHeaders() }).then(handle),
 	getUnpaidPenalties: () =>
 		fetch(`${BASE}/payments/penalties/unpaid`, { headers: adminHeaders() }).then(handle),
+	getDueReminders: () =>
+		fetch(`${BASE}/payments/due-reminders`, { headers: adminHeaders() }).then(handle),
 	approvePayment: (id) =>
 		fetch(`${BASE}/payments/${id}/approve`, { method: "PATCH", headers: adminHeaders() }).then(
 			handle
@@ -119,6 +129,17 @@ export const api = {
 	revealCoupon: (id) =>
 		fetch(`${BASE}/coupons/${id}/reveal`, { method: "PATCH" }).then(handle),
 	getAllCoupons: () => fetch(`${BASE}/coupons`, { headers: adminHeaders() }).then(handle),
+	uploadCouponImage: (file) => {
+		const formData = new FormData();
+		formData.append("image", file);
+		// No Content-Type header here on purpose — the browser sets the correct
+		// multipart boundary itself; setting it manually breaks the upload.
+		return fetch(`${BASE}/coupons/upload-image`, {
+			method: "POST",
+			headers: adminHeaders(),
+			body: formData,
+		}).then(handle);
+	},
 	createCoupon: (payload) =>
 		fetch(`${BASE}/coupons`, {
 			method: "POST",
@@ -143,4 +164,125 @@ export const api = {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ message }),
 		}).then(handle),
+
+	// To-Do list
+	getTodos: () => fetch(`${BASE}/todos`).then(handle),
+	createTodo: (title, description) =>
+		fetch(`${BASE}/todos`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ title, description }),
+		}).then(handle),
+	completeTodo: (id, is_completed) =>
+		fetch(`${BASE}/todos/${id}/complete`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ is_completed }),
+		}).then(handle),
+	deleteTodo: (id) => fetch(`${BASE}/todos/${id}`, { method: "DELETE" }).then(handle),
+
+	// Generic media upload (Baad's own uploads — want/hangout photos etc.)
+	uploadImage: (file) => {
+		const formData = new FormData();
+		formData.append("image", file);
+		return fetch(`${BASE}/uploads/image`, { method: "POST", body: formData }).then(handle);
+	},
+
+	// Wants list
+	getWants: () => fetch(`${BASE}/wants`).then(handle),
+	createWant: (payload) =>
+		fetch(`${BASE}/wants`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
+	completeWant: (id) => fetch(`${BASE}/wants/${id}/complete`, { method: "PATCH" }).then(handle),
+	deleteWant: (id) => fetch(`${BASE}/wants/${id}`, { method: "DELETE" }).then(handle),
+
+	// Hangout list
+	getHangouts: () => fetch(`${BASE}/hangouts`).then(handle),
+	createHangout: (payload) =>
+		fetch(`${BASE}/hangouts`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
+	completeHangout: (id) =>
+		fetch(`${BASE}/hangouts/${id}/complete`, { method: "PATCH" }).then(handle),
+	saveHangoutFeedback: (id, payload) =>
+		fetch(`${BASE}/hangouts/${id}/feedback`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
+	deleteHangout: (id) => fetch(`${BASE}/hangouts/${id}`, { method: "DELETE" }).then(handle),
+
+	// Expense tracker
+	getExpenses: () => fetch(`${BASE}/expenses`).then(handle),
+	createExpense: (payload) =>
+		fetch(`${BASE}/expenses`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
+	deleteExpense: (id) => fetch(`${BASE}/expenses/${id}`, { method: "DELETE" }).then(handle),
+	getExpenseCategories: () => fetch(`${BASE}/expenses/categories`).then(handle),
+	addExpenseCategory: (name) =>
+		fetch(`${BASE}/expenses/categories`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name }),
+		}).then(handle),
+	getMonthSummary: (month) => fetch(`${BASE}/expenses/summary/month?month=${month}`).then(handle),
+	getOverallSummary: () => fetch(`${BASE}/expenses/summary/overall`).then(handle),
+	getYearSummary: (year) => fetch(`${BASE}/expenses/summary/year?year=${year}`).then(handle),
+	backfillInvestmentExpenses: () =>
+		fetch(`${BASE}/expenses/backfill-investments`, {
+			method: "POST",
+			headers: adminHeaders(),
+		}).then(handle),
+
+	// Friends (group expenses)
+	getFriends: () => fetch(`${BASE}/friends`).then(handle),
+	createFriend: (name, mobile_number) =>
+		fetch(`${BASE}/friends`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name, mobile_number }),
+		}).then(handle),
+	deleteFriend: (id) => fetch(`${BASE}/friends/${id}`, { method: "DELETE" }).then(handle),
+
+	// Activities (group expenses)
+	getActivities: () => fetch(`${BASE}/activities`).then(handle),
+	createActivity: (name, friend_ids) =>
+		fetch(`${BASE}/activities`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name, friend_ids }),
+		}).then(handle),
+	addActivityMember: (activityId, friend_id) =>
+		fetch(`${BASE}/activities/${activityId}/members`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ friend_id }),
+		}).then(handle),
+	removeActivityMember: (activityId, friendId) =>
+		fetch(`${BASE}/activities/${activityId}/members/${friendId}`, { method: "DELETE" }).then(handle),
+	addActivityPayment: (activityId, payload) =>
+		fetch(`${BASE}/activities/${activityId}/payments`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
+	deleteActivityPayment: (activityId, paymentId) =>
+		fetch(`${BASE}/activities/${activityId}/payments/${paymentId}`, { method: "DELETE" }).then(handle),
+	settleActivityDebt: (activityId, payload) =>
+		fetch(`${BASE}/activities/${activityId}/settle`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
+	toggleActivityComplete: (activityId) =>
+		fetch(`${BASE}/activities/${activityId}/toggle-complete`, { method: "PATCH" }).then(handle),
+	deleteActivity: (id) => fetch(`${BASE}/activities/${id}`, { method: "DELETE" }).then(handle),
 };

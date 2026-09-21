@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
-import "./Enroll.css";
+import "../styles/Enroll.css";
 
 export default function Enroll() {
 	const { planId } = useParams();

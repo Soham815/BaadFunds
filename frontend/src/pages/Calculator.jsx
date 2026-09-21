@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import "./Calculator.css";
+import "../styles/Calculator.css";
 
 function projectMaturity({ intervalType, contributionAmount, annualRatePct, maturityMonths }) {
 	const r = annualRatePct / 100;

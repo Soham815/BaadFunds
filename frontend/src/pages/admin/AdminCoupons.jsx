@@ -5,7 +5,8 @@ export default function AdminCoupons() {
 	const [coupons, setCoupons] = useState([]);
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
-	const [imageDataUrl, setImageDataUrl] = useState("");
+	const [imageUrl, setImageUrl] = useState("");
+	const [uploading, setUploading] = useState(false);
 	const [busy, setBusy] = useState(false);
 
 	useEffect(() => {
@@ -16,22 +17,28 @@ export default function AdminCoupons() {
 		api.getAllCoupons().then(setCoupons);
 	}
 
-	function handleImageChange(e) {
+	async function handleImageChange(e) {
 		const file = e.target.files?.[0];
 		if (!file) return;
-		const reader = new FileReader();
-		reader.onload = () => setImageDataUrl(reader.result);
-		reader.readAsDataURL(file);
+		setUploading(true);
+		try {
+			const { url } = await api.uploadCouponImage(file);
+			setImageUrl(url);
+		} catch (err) {
+			alert(err.message);
+			e.target.value = "";
+		}
+		setUploading(false);
 	}
 
 	async function handleSubmit(e) {
 		e.preventDefault();
 		setBusy(true);
 		try {
-			await api.createCoupon({ title, description, image_url: imageDataUrl || undefined });
+			await api.createCoupon({ title, description, image_url: imageUrl || undefined });
 			setTitle("");
 			setDescription("");
-			setImageDataUrl("");
+			setImageUrl("");
 			e.target.reset();
 			load();
 		} catch (err) {
@@ -59,17 +66,18 @@ export default function AdminCoupons() {
 						</div>
 						<div className="field">
 							<label>Upload an image (optional)</label>
-							<input type="file" accept="image/*" onChange={handleImageChange} />
+							<input type="file" accept="image/*" onChange={handleImageChange} disabled={uploading} />
+							{uploading && <small style={{ color: "var(--plum-soft)" }}>Uploading…</small>}
 						</div>
 					</div>
 					<div className="field">
 						<label>Description</label>
 						<textarea rows="2" value={description} onChange={(e) => setDescription(e.target.value)} required />
 					</div>
-					{imageDataUrl && (
-						<img src={imageDataUrl} alt="preview" style={{ maxHeight: 100, borderRadius: 12, marginBottom: 12 }} />
+					{imageUrl && (
+						<img src={imageUrl} alt="preview" style={{ maxHeight: 100, borderRadius: 12, marginBottom: 12 }} />
 					)}
-					<button className="btn" disabled={busy}>
+					<button className="btn" disabled={busy || uploading}>
 						{busy ? "Dropping…" : "🎁 Create coupon"}
 					</button>
 				</form>

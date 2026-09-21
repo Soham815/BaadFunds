@@ -1,0 +1,18 @@
+.enroll-page {
+	display: flex;
+	justify-content: center;
+}
+
+.enroll-card {
+	max-width: 480px;
+	width: 100%;
+}
+
+.enroll-facts {
+	display: flex;
+	gap: 18px;
+	margin: 16px 0 20px;
+	background: var(--cream);
+	padding: 14px 18px;
+	border-radius: 18px;
+}

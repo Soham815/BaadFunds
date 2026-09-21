@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../api.js";
-import "./Loan.css";
+import "../styles/Loan.css";
 
 export default function Loan() {
 	const [loans, setLoans] = useState([]);

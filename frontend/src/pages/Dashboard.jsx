@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api.js";
-import "./Dashboard.css";
+import "../styles/Dashboard.css";
 
 export default function Dashboard() {
 	const [investments, setInvestments] = useState([]);

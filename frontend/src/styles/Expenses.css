@@ -1,0 +1,33 @@
+.expenses-page {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.expenses-intro {
+	background: linear-gradient(135deg, var(--yellow), var(--white) 70%);
+}
+
+.expenses-tabs {
+	display: flex;
+	gap: 8px;
+	background: var(--white);
+	padding: 6px;
+	border-radius: var(--radius-pill);
+	box-shadow: var(--shadow);
+	width: fit-content;
+}
+
+.expenses-tabs button {
+	border: none;
+	background: transparent;
+	padding: 10px 20px;
+	border-radius: var(--radius-pill);
+	font-family: var(--font-display);
+	font-size: 14px;
+	color: var(--plum-soft);
+}
+.expenses-tabs button.active {
+	background: var(--coral);
+	color: white;
+}

@@ -1,0 +1,52 @@
+.brush-checkbox {
+	border: none;
+	background: transparent;
+	flex-shrink: 0;
+	padding: 0;
+	cursor: pointer;
+}
+.brush-checkbox:disabled {
+	cursor: default;
+}
+
+.brush-checkbox-svg {
+	width: 100%;
+	height: 100%;
+}
+
+.brush-checkbox-circle {
+	fill: none;
+	stroke: var(--coral);
+	stroke-width: 3;
+	stroke-linecap: round;
+	stroke-dasharray: 112;
+	stroke-dashoffset: 112;
+}
+.brush-checkbox.checked .brush-checkbox-circle {
+	animation: brush-draw-circle 0.5s ease forwards;
+}
+
+.brush-checkbox-tick {
+	fill: none;
+	stroke: var(--mint-deep);
+	stroke-width: 4.5;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-dasharray: 32;
+	stroke-dashoffset: 32;
+}
+.brush-checkbox.checked .brush-checkbox-tick {
+	animation: brush-draw-tick 0.35s ease forwards;
+	animation-delay: 0.25s;
+}
+
+@keyframes brush-draw-circle {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes brush-draw-tick {
+	to {
+		stroke-dashoffset: 0;
+	}
+}

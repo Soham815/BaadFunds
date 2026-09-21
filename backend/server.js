@@ -11,6 +11,13 @@ import loansRouter from "./routes/loans.js";
 import couponsRouter from "./routes/coupons.js";
 import adminRouter from "./routes/admin.js";
 import chatbotRouter from "./routes/chatbot.js";
+import todosRouter from "./routes/todos.js";
+import wantsRouter from "./routes/wants.js";
+import hangoutsRouter from "./routes/hangouts.js";
+import uploadsRouter from "./routes/uploads.js";
+import expensesRouter from "./routes/expenses.js";
+import friendsRouter from "./routes/friends.js";
+import activitiesRouter from "./routes/activities.js";
 
 const app = express();
 app.use(cors());
@@ -26,6 +33,13 @@ app.use("/api/loans", loansRouter);
 app.use("/api/coupons", couponsRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/chatbot", chatbotRouter);
+app.use("/api/todos", todosRouter);
+app.use("/api/wants", wantsRouter);
+app.use("/api/hangouts", hangoutsRouter);
+app.use("/api/uploads", uploadsRouter);
+app.use("/api/expenses", expensesRouter);
+app.use("/api/friends", friendsRouter);
+app.use("/api/activities", activitiesRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
