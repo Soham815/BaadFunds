@@ -3,8 +3,12 @@ import confetti from "canvas-confetti";
 import { api } from "../api.js";
 import BrushCheckbox from "../components/BrushCheckbox.jsx";
 import HowSoonStepper from "../components/HowSoonStepper.jsx";
+import CollapsibleList from "../components/CollapsibleList.jsx";
+import UncheckConfirm from "../components/UncheckConfirm.jsx";
 import { hopefulMessage, congratsMessage, frameColorForDesire, timeframeLabel } from "../utils/wants.js";
 import "../styles/Wants.css";
+import "../styles/ItemActions.css";
+import "../styles/CompletedSection.css";
 
 function fireConfetti() {
 	confetti({
@@ -31,6 +35,12 @@ export default function Wants() {
 	const [hopeful, setHopeful] = useState(null);
 	const [congrats, setCongrats] = useState(null);
 	const [animatingId, setAnimatingId] = useState(null);
+
+	// inline editing
+	const [editingId, setEditingId] = useState(null);
+	const [editForm, setEditForm] = useState(null);
+	const [editUploading, setEditUploading] = useState(false);
+	const [savingEdit, setSavingEdit] = useState(false);
 
 	useEffect(() => {
 		load();
@@ -94,7 +104,7 @@ export default function Wants() {
 		setAnimatingId(want.id);
 		try {
 			const [updated] = await Promise.all([
-				api.completeWant(want.id),
+				api.completeWant(want.id, true),
 				new Promise((resolve) => setTimeout(resolve, 550)),
 			]);
 			fireConfetti();
@@ -111,11 +121,190 @@ export default function Wants() {
 		load();
 	}
 
+	async function uncheckWant(want) {
+		try {
+			await api.completeWant(want.id, false);
+			load();
+		} catch (err) {
+			alert(err.message);
+		}
+	}
+
+	const [pendingUncheck, setPendingUncheck] = useState(null);
+
 	async function removeWant(id) {
 		if (!confirm("Remove this want for good?")) return;
 		await api.deleteWant(id);
 		load();
 	}
+
+	function startEdit(want) {
+		setEditingId(want.id);
+		setEditForm({
+			title: want.title,
+			desire: want.desire,
+			image_url: want.image_url || "",
+			purchase_link: want.purchase_link || "",
+			description: want.description || "",
+			expected_timeframe: want.expected_timeframe,
+		});
+	}
+
+	function cancelEdit() {
+		setEditingId(null);
+		setEditForm(null);
+	}
+
+	async function handleEditImageChange(e) {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		setEditUploading(true);
+		try {
+			const { url } = await api.uploadImage(file);
+			setEditForm((f) => ({ ...f, image_url: url }));
+		} catch (err) {
+			alert(err.message);
+		}
+		setEditUploading(false);
+	}
+
+	async function saveEdit(e) {
+		e.preventDefault();
+		if (!editForm.title.trim()) return;
+		setSavingEdit(true);
+		try {
+			await api.updateWant(editingId, {
+				title: editForm.title.trim(),
+				desire: editForm.desire,
+				image_url: editForm.image_url || null,
+				purchase_link: editForm.purchase_link.trim() || null,
+				description: editForm.description.trim() || null,
+				expected_timeframe: editForm.expected_timeframe,
+			});
+			cancelEdit();
+			load();
+		} catch (err) {
+			alert(err.message);
+		}
+		setSavingEdit(false);
+	}
+
+	function renderWant(want) {
+		const isAnimating = animatingId === want.id;
+		const isDone = want.is_completed && !isAnimating;
+		const frameColor = frameColorForDesire(want.desire);
+		const isEditing = editingId === want.id;
+
+		if (isEditing) {
+			return (
+				<form key={want.id} className="card wants-item wants-item-editing" onSubmit={saveEdit}>
+					<div className="field">
+						<label>Title</label>
+						<input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} required />
+					</div>
+					<div className="field">
+						<label>How badly do you want it?</label>
+						<input
+							type="range"
+							min="0"
+							max="100"
+							value={editForm.desire}
+							onChange={(e) => setEditForm({ ...editForm, desire: Number(e.target.value) })}
+							className="wants-slider"
+							style={{ accentColor: frameColorForDesire(editForm.desire) }}
+						/>
+					</div>
+					<div className="field">
+						<label>Photo</label>
+						<input type="file" accept="image/*" onChange={handleEditImageChange} disabled={editUploading} />
+						{editUploading && <small style={{ color: "var(--plum-soft)" }}>Uploading…</small>}
+						{editForm.image_url && (
+							<img src={editForm.image_url} alt="preview" style={{ maxHeight: 90, borderRadius: 12, marginTop: 8 }} />
+						)}
+					</div>
+					<div className="field">
+						<label>Link to buy it</label>
+						<input
+							type="url"
+							value={editForm.purchase_link}
+							onChange={(e) => setEditForm({ ...editForm, purchase_link: e.target.value })}
+						/>
+					</div>
+					<div className="field">
+						<label>Details</label>
+						<textarea
+							rows="2"
+							value={editForm.description}
+							onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+						/>
+					</div>
+					<HowSoonStepper
+						value={editForm.expected_timeframe}
+						onChange={(v) => setEditForm({ ...editForm, expected_timeframe: v })}
+						label="How soon do you expect this?"
+					/>
+					<div className="item-edit-actions">
+						<button className="btn btn-mint" disabled={savingEdit || editUploading}>
+							{savingEdit ? "Saving…" : "Save"}
+						</button>
+						<button type="button" className="btn btn-ghost" onClick={cancelEdit}>
+							Cancel
+						</button>
+					</div>
+				</form>
+			);
+		}
+
+		return (
+			<div
+				key={want.id}
+				className={`card wants-item ${isDone ? "wants-item-done" : ""} ${isAnimating ? "wants-item-animating" : ""}`}
+				style={isDone ? { borderLeft: `8px solid ${frameColor}`, background: `${frameColor}18` } : undefined}
+			>
+				<BrushCheckbox
+					checked={isDone || isAnimating}
+					onClick={() => {
+						if (isAnimating) return;
+						if (want.is_completed) setPendingUncheck(want);
+						else beginComplete(want);
+					}}
+					size={36}
+				/>
+
+				{want.image_url && <img src={want.image_url} alt={want.title} className="wants-thumb" />}
+
+				<div className="wants-text-wrap">
+					<h4 className="wants-title">{want.title}</h4>
+					{want.description && <p className="wants-desc">{want.description}</p>}
+					<div className="wants-meta">
+						{!want.is_completed && (
+							<span className="pill-tag">⏳ {timeframeLabel(want.expected_timeframe)}</span>
+						)}
+						{isDone && want.tag_label && <span className="wants-tag">{want.tag_label}</span>}
+						{want.purchase_link && (
+							<a href={want.purchase_link} target="_blank" rel="noreferrer" className="wants-link-btn">
+								🔗 View item
+							</a>
+						)}
+					</div>
+				</div>
+
+				{!isAnimating && (
+					<div className="item-actions">
+						<button className="item-edit-btn" onClick={() => startEdit(want)} title="Edit">
+							✏️
+						</button>
+						<button className="item-delete-btn" onClick={() => removeWant(want.id)} title="Remove">
+							🗑️
+						</button>
+					</div>
+				)}
+			</div>
+		);
+	}
+
+	const activeWants = wants.filter((w) => !w.is_completed || animatingId === w.id);
+	const completedWants = wants.filter((w) => w.is_completed && animatingId !== w.id);
 
 	return (
 		<div className="wants-page">
@@ -215,64 +404,24 @@ export default function Wants() {
 			)}
 
 			<div className="wants-list">
-				{wants.length === 0 && (
+				{activeWants.length === 0 && completedWants.length === 0 && (
 					<div className="empty-state card">
 						<h3>Nothing here yet!</h3>
 						<p>Add your first want above 🎀</p>
 					</div>
 				)}
 
-				{wants.map((want) => {
-					const isAnimating = animatingId === want.id;
-					const isDone = want.is_completed && !isAnimating;
-					const frameColor = frameColorForDesire(want.desire);
-
-					return (
-						<div
-							key={want.id}
-							className={`card wants-item ${isDone ? "wants-item-done" : ""} ${
-								isAnimating ? "wants-item-animating" : ""
-							}`}
-							style={
-								isDone
-									? { borderLeft: `8px solid ${frameColor}`, background: `${frameColor}18` }
-									: undefined
-							}
-						>
-							<BrushCheckbox
-								checked={isDone || isAnimating}
-								onClick={() => !want.is_completed && !isAnimating && beginComplete(want)}
-								disabled={want.is_completed || isAnimating}
-								size={36}
-							/>
-
-							{want.image_url && <img src={want.image_url} alt={want.title} className="wants-thumb" />}
-
-							<div className="wants-text-wrap">
-								<h4 className="wants-title">{want.title}</h4>
-								{want.description && <p className="wants-desc">{want.description}</p>}
-								<div className="wants-meta">
-									{!want.is_completed && (
-										<span className="pill-tag">⏳ {timeframeLabel(want.expected_timeframe)}</span>
-									)}
-									{isDone && want.tag_label && <span className="wants-tag">{want.tag_label}</span>}
-									{want.purchase_link && (
-										<a href={want.purchase_link} target="_blank" rel="noreferrer" className="wants-link-btn">
-											🔗 View item
-										</a>
-									)}
-								</div>
-							</div>
-
-							{!want.is_completed && !isAnimating && (
-								<button className="todo-delete" onClick={() => removeWant(want.id)} title="Remove">
-									🗑️
-								</button>
-							)}
-						</div>
-					);
-				})}
+				{activeWants.map(renderWant)}
 			</div>
+
+			{completedWants.length > 0 && (
+				<div className="completed-section">
+					<h3 className="completed-section-heading">🎀 Got it! ({completedWants.length})</h3>
+					<div className="wants-list">
+						<CollapsibleList items={completedWants} threshold={5} renderItem={renderWant} />
+					</div>
+				</div>
+			)}
 
 			{congrats && (
 				<div className="wants-congrats-overlay">
@@ -285,6 +434,13 @@ export default function Wants() {
 						</button>
 					</div>
 				</div>
+			)}
+
+			{pendingUncheck && (
+				<UncheckConfirm
+					onConfirm={() => uncheckWant(pendingUncheck)}
+					onClose={() => setPendingUncheck(null)}
+				/>
 			)}
 		</div>
 	);

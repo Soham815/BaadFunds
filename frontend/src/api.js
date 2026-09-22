@@ -179,6 +179,12 @@ export const api = {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ is_completed }),
 		}).then(handle),
+	updateTodo: (id, payload) =>
+		fetch(`${BASE}/todos/${id}`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
 	deleteTodo: (id) => fetch(`${BASE}/todos/${id}`, { method: "DELETE" }).then(handle),
 
 	// Generic media upload (Baad's own uploads — want/hangout photos etc.)
@@ -196,7 +202,18 @@ export const api = {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(payload),
 		}).then(handle),
-	completeWant: (id) => fetch(`${BASE}/wants/${id}/complete`, { method: "PATCH" }).then(handle),
+	completeWant: (id, is_completed = true) =>
+		fetch(`${BASE}/wants/${id}/complete`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ is_completed }),
+		}).then(handle),
+	updateWant: (id, payload) =>
+		fetch(`${BASE}/wants/${id}`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
 	deleteWant: (id) => fetch(`${BASE}/wants/${id}`, { method: "DELETE" }).then(handle),
 
 	// Hangout list
@@ -207,8 +224,18 @@ export const api = {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(payload),
 		}).then(handle),
-	completeHangout: (id) =>
-		fetch(`${BASE}/hangouts/${id}/complete`, { method: "PATCH" }).then(handle),
+	completeHangout: (id, is_completed = true) =>
+		fetch(`${BASE}/hangouts/${id}/complete`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ is_completed }),
+		}).then(handle),
+	updateHangout: (id, payload) =>
+		fetch(`${BASE}/hangouts/${id}`, {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		}).then(handle),
 	saveHangoutFeedback: (id, payload) =>
 		fetch(`${BASE}/hangouts/${id}/feedback`, {
 			method: "PATCH",

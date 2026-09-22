@@ -47,15 +47,50 @@ router.post("/", async (req, res) => {
 	res.json(data);
 });
 
-// Mark a want as gotten! Computes a tag based on how long it took.
+// Edit a want's fields
+router.patch("/:id", async (req, res) => {
+	const { id } = req.params;
+	const { title, desire, image_url, purchase_link, description, expected_timeframe } = req.body;
+	const updates = {};
+	if (title !== undefined) {
+		if (!title.trim()) return res.status(400).json({ error: "title cannot be empty" });
+		updates.title = title.trim();
+	}
+	if (desire !== undefined && desire >= 0 && desire <= 100) updates.desire = desire;
+	if (image_url !== undefined) updates.image_url = image_url || null;
+	if (purchase_link !== undefined) updates.purchase_link = purchase_link?.trim() || null;
+	if (description !== undefined) updates.description = description?.trim() || null;
+	if (expected_timeframe !== undefined) {
+		updates.expected_timeframe = VALID_TIMEFRAMES.includes(expected_timeframe) ? expected_timeframe : null;
+	}
+
+	const { data, error } = await supabase.from("wants").update(updates).eq("id", id).select().single();
+	if (error) return res.status(500).json({ error: error.message });
+	res.json(data);
+});
+
+// Mark a want as gotten (or un-mark it) — computes a tag based on how long it took.
 router.patch("/:id/complete", async (req, res) => {
 	const { id } = req.params;
+	const isCompleted = req.body.is_completed !== undefined ? !!req.body.is_completed : true;
 	const { data: want, error: fetchErr } = await supabase
 		.from("wants")
 		.select("*")
 		.eq("id", id)
 		.single();
 	if (fetchErr) return res.status(404).json({ error: "Want not found" });
+
+	if (!isCompleted) {
+		// undo — back to the active list, no tag/duration until she checks it again
+		const { data, error } = await supabase
+			.from("wants")
+			.update({ is_completed: false, completed_at: null, completed_duration_days: null, tag_label: null })
+			.eq("id", id)
+			.select()
+			.single();
+		if (error) return res.status(500).json({ error: error.message });
+		return res.json(data);
+	}
 
 	const completedAt = new Date();
 	const createdAt = new Date(want.created_at);

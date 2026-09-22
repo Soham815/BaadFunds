@@ -64,6 +64,17 @@
 	color: white;
 }
 
+.expense-month-picker {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 10px;
+}
+.expense-month-picker input[type="month"] {
+	width: auto;
+	padding: 8px 14px;
+	font-size: 13px;
+}
+
 .expense-year-toggle button {
 	border: none;
 	background: var(--white);
@@ -91,6 +102,22 @@
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+}
+
+.expense-month-group {
+	margin-bottom: 18px;
+}
+.expense-month-group:last-child {
+	margin-bottom: 0;
+}
+
+.expense-month-heading {
+	font-family: var(--font-display);
+	font-size: 14px;
+	color: var(--coral);
+	margin: 0 0 10px;
+	padding-bottom: 6px;
+	border-bottom: 2px dashed var(--pink);
 }
 
 .expense-recent-row {

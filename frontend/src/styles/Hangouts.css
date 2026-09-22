@@ -71,14 +71,15 @@
 	flex: 1;
 }
 
-.hangouts-delete {
-	border: none;
-	background: transparent;
-	font-size: 14px;
-	opacity: 0.5;
+.hangouts-item-editing {
+	display: block;
 }
-.hangouts-delete:hover {
-	opacity: 1;
+
+.hangouts-details-edit {
+	background: var(--cream);
+	border-radius: 16px;
+	padding: 14px;
+	margin-bottom: 16px;
 }
 
 .hangouts-thumb {

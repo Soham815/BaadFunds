@@ -95,6 +95,10 @@
 	opacity: 1;
 }
 
+.todo-item-editing {
+	display: block;
+}
+
 /* ---------- congrats modal ---------- */
 
 .todo-congrats-overlay {

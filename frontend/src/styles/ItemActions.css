@@ -1,0 +1,23 @@
+.item-actions {
+	display: flex;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.item-edit-btn,
+.item-delete-btn {
+	border: none;
+	background: transparent;
+	font-size: 14px;
+	opacity: 0.5;
+	flex-shrink: 0;
+}
+.item-edit-btn:hover,
+.item-delete-btn:hover {
+	opacity: 1;
+}
+
+.item-edit-actions {
+	display: flex;
+	gap: 8px;
+}

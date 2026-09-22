@@ -32,6 +32,27 @@ router.post("/", async (req, res) => {
 	res.json(data);
 });
 
+// Edit a task's title/description
+router.patch("/:id", async (req, res) => {
+	const { id } = req.params;
+	const { title, description } = req.body;
+	if (title !== undefined && !title.trim()) {
+		return res.status(400).json({ error: "title cannot be empty" });
+	}
+	const updates = {};
+	if (title !== undefined) updates.title = title.trim();
+	if (description !== undefined) updates.description = description?.trim() || null;
+
+	const { data, error } = await supabase
+		.from("todos")
+		.update(updates)
+		.eq("id", id)
+		.select()
+		.single();
+	if (error) return res.status(500).json({ error: error.message });
+	res.json(data);
+});
+
 router.patch("/:id/complete", async (req, res) => {
 	const { id } = req.params;
 	const { is_completed } = req.body;

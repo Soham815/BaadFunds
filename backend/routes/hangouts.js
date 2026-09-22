@@ -44,15 +44,48 @@ router.post("/", async (req, res) => {
 	res.json(data);
 });
 
-// Mark a hangout as done! Computes a trophy tag based on how long it took to happen.
+// Edit a hangout's fields
+router.patch("/:id", async (req, res) => {
+	const { id } = req.params;
+	const { title, outing_type, expected_timeframe, image_url, description } = req.body;
+	const updates = {};
+	if (title !== undefined) {
+		if (!title.trim()) return res.status(400).json({ error: "title cannot be empty" });
+		updates.title = title.trim();
+	}
+	if (outing_type !== undefined) updates.outing_type = outing_type?.trim() || null;
+	if (expected_timeframe !== undefined) {
+		updates.expected_timeframe = VALID_TIMEFRAMES.includes(expected_timeframe) ? expected_timeframe : null;
+	}
+	if (image_url !== undefined) updates.image_url = image_url || null;
+	if (description !== undefined) updates.description = description?.trim() || null;
+
+	const { data, error } = await supabase.from("hangouts").update(updates).eq("id", id).select().single();
+	if (error) return res.status(500).json({ error: error.message });
+	res.json(data);
+});
+
+// Mark a hangout as done (or undo that) — computes a trophy tag based on how long it took.
 router.patch("/:id/complete", async (req, res) => {
 	const { id } = req.params;
+	const isCompleted = req.body.is_completed !== undefined ? !!req.body.is_completed : true;
 	const { data: hangout, error: fetchErr } = await supabase
 		.from("hangouts")
 		.select("*")
 		.eq("id", id)
 		.single();
 	if (fetchErr) return res.status(404).json({ error: "Hangout not found" });
+
+	if (!isCompleted) {
+		const { data, error } = await supabase
+			.from("hangouts")
+			.update({ is_completed: false, completed_at: null, completed_duration_days: null, tag_label: null })
+			.eq("id", id)
+			.select()
+			.single();
+		if (error) return res.status(500).json({ error: error.message });
+		return res.json(data);
+	}
 
 	const completedAt = new Date();
 	const createdAt = new Date(hangout.created_at);

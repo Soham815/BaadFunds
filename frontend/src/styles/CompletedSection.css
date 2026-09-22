@@ -1,0 +1,9 @@
+.completed-section {
+	margin-top: 4px;
+}
+
+.completed-section-heading {
+	font-size: 14px;
+	color: var(--plum-soft);
+	margin-bottom: 10px;
+}
